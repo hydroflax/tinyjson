@@ -6,7 +6,7 @@
  */ 
 
 #include <avr/io.h>
-#include "library.h"
+#include "tinyjsonpp.h"
 
 tinyjsonpp::tinyjsonpp(bool store, unsigned int maxSize) {
 

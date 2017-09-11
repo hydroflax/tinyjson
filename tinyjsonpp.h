@@ -23,7 +23,7 @@ public:
 
 	char* value; // A pointer to the start of the value (ignoring quotation marks).
 	unsigned int valueSize; // The amount of characters the value has.
-	char[1] valueType; // The value type (int => 'i', string => 's', char => 'c', bool => 'b', array => 'a').
+	char valueType; // The value type (int => 'i', string => 's', char => 'c', bool => 'b', array => 'a').
 
 	//------------------------------------------------------------------------------
 	//         Methods
