@@ -9,6 +9,8 @@
 #ifndef LIBRARY_H_
 #define LIBRARY_H_
 
+#include "stdlib.h"
+
 class tinyjsonpp {
 public:
 	//------------------------------------------------------------------------------
@@ -56,6 +58,11 @@ public:
 	 * @return void
 	 */ 
 	void parse(char* c);
+
+	void* operator new(size_t objsize);
+
+	void operator delete(void* obj);
+
 
 
 	// User can also add key-value pairs to the JSON string after the current key-value pointer position (two variations, one function accepts a char* and the other accepts a key char*, value char*).
