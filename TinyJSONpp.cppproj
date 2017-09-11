@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectVersion>7.0</ProjectVersion>
     <ToolchainName>com.Atmel.AVRGCC8.CPP</ToolchainName>
-    <ProjectGuid>{e32b2efe-3982-4f6f-a395-b2abcc82acfb}</ProjectGuid>
+    <ProjectGuid>{c91b0ce5-746f-4ad2-9f61-0bae9b638e1c}</ProjectGuid>
     <avrdevice>ATtiny841</avrdevice>
     <avrdeviceseries>none</avrdeviceseries>
     <OutputType>StaticLibrary</OutputType>
