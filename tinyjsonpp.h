@@ -17,21 +17,23 @@ public:
 	//         Variables
 	//------------------------------------------------------------------------------
 
-	unsigned int location; // The current location of the user. (Used by parse). 
-	                       // (Enables user to insert K-V pairs into the current 
-	                       // JSON string).
-	char* json; // The JSON string.
-	unsigned int jsonSize; // The size of the json string.
+	unsigned int location;     // The current location of the user. (Used by parse). 
+	                           // (Enables user to insert K-V pairs into the current 
+	                           // JSON string).
+	char* json;                // The JSON string.
+	unsigned int jsonSize;     // The size of the json string.
 
-	char* key; // A pointer to the start of the key (ignoring quotation marks). 
-	           // This is used know where the user has read up to in the JSON string
-	           // stored in memory. (next() uses this to the next key-value pair).
-	unsigned int keySize; // The amount of characters the key has.
+	char* key;                 // A pointer to the start of the key (ignoring 
+	                           // quotation marks). This is used know where the user
+	                           // has read up to in the JSON string stored in memory.
+	                           // (next() uses this to the next key-value pair).
+	unsigned int keySize;      // The amount of characters the key has.
 
-	char* value; // A pointer to the start of the value (ignoring quotation marks).
-	unsigned int valueSize; // The amount of characters the value has.
-	char valueType; // The value type (int => 'i', string => 's', char => 'c', 
-	                // bool => 'b', array => 'a').
+	char* value;               // A pointer to the start of the value (ignoring 
+	                           // quotation marks).
+	unsigned int valueSize;    // The amount of characters the value has.
+	char valueType;            // The value type (int => 'i', string => 's',
+	                           // char => 'c', bool => 'b', array => 'a').
 
 	//------------------------------------------------------------------------------
 	//         Methods
@@ -52,21 +54,21 @@ public:
 	/**
 	 * Full Constructor
 	 *
-	 * @param bool store			- Store in IRAM or in EEPROM (Depending on
-	 *								  purpose). (1 = EEPROM, 0 = IRAM).
-	 * @param bool ignoreQuotes		- Ignore quotation marks, saving space in memory.
-	 *								  (To Be Implemented at a later date).
-	 * @param unsigned int maxSize	- Specify a maximum size that will be used by the
-	 *								  JSON string (if known). If not chosen, the 
-	 *								  string will be of variable size (need to check
-	 *								  to ensure string will be stored in a row).
+	 * @param bool store            - Store in IRAM or in EEPROM (Depending on
+	 *                                purpose). (1 = EEPROM, 0 = IRAM).
+	 * @param bool ignoreQuotes     - Ignore quotation marks, saving space in memory.
+	 *                                (To Be Implemented at a later date).
+	 * @param unsigned int maxSize  - Specify a maximum size that will be used by the
+	 *                                JSON string (if known). If not chosen, the 
+	 *                                string will be of variable size (need to check
+	 *                                to ensure string will be stored in a row).
 	 */
 	tinyjsonpp(bool store, bool ignoreQuotes, unsigned int maxSize);
 	
 	/** 
 	 * Construct New Object.
 	 *
-	 * @param size_t objsize		- The size of the tinyjsonpp object.
+	 * @param size_t objsize        - The size of the tinyjsonpp object.
 	 * @return void
 	 */
 	void* operator new(size_t objsize);
@@ -74,7 +76,7 @@ public:
 	/** 
 	 * Delete Object.
 	 *
-	 * @param void* obj				- The tinyjsonpp object to delete.
+	 * @param void* obj             - The tinyjsonpp object to delete.
 	 * @return void
 	 */
 	void operator delete(void* obj);
@@ -85,7 +87,7 @@ public:
 	 * smallest possible stored JSON. (Potential to remove the quotation marks as well).
 	 * The character from the buffer will be added to the end of the JSON string.
 	 *
-	 * @param char* c				- The character currently being passed by the buffer.
+	 * @param char* c               - The character currently being passed by the buffer.
 	 * @return void
 	 */ 
 	void parse(char c);
