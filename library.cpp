@@ -1,16 +1,21 @@
 /*
- * TinyJSONpp.cpp
+ * tinyjsonpp.cpp
  *
- * Created: 11-Sep-17 12:25:10
- * Author : Dan
+ * Created: 11-Sept-17 12:25:10
+ * Author : hydroflax
  */ 
 
 #include <avr/io.h>
+#include "library.h"
 
+tinyjsonpp::tinyjsonpp(bool store, unsigned int maxSize) {
 
-/* Replace with your library code */
-int myfunc(void)
-{
-	return 0;
 }
 
+tinyjsonpp::tinyjsonpp(bool store, bool ignoreQuotes, unsigned int maxSize) {
+	
+}
+
+void tinyjsonpp::parse(char* c) {
+
+}
