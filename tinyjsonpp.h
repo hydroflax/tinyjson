@@ -28,12 +28,14 @@ public:
 	                           // has read up to in the JSON string stored in memory.
 	                           // (next() uses this to the next key-value pair).
 	unsigned int keySize;      // The amount of characters the key has.
+	char* keyParent;           // The parent of the key. (if it has one).
 
 	char* value;               // A pointer to the start of the value (ignoring 
 	                           // quotation marks).
 	unsigned int valueSize;    // The amount of characters the value has.
 	char valueType;            // The value type (int => 'i', string => 's',
-	                           // char => 'c', bool => 'b', array => 'a').
+	                           // char => 'c', bool => 'b', array => 'a',
+							   // embedded JSON obj => 'e', null => 'n').
 
 	//------------------------------------------------------------------------------
 	//         Methods
@@ -81,6 +83,20 @@ public:
 	 */
 	void operator delete(void* obj);
 
+	/** 
+	 * Empties the current JSON string.
+	 *
+	 * @return void
+	 */
+	void empty();
+
+	/** 
+	 * Resets the current JSON string to an empty JSON string.
+	 *
+	 * @return void
+	 */
+	void reset();
+
 	/**
 	 * Read from buffer and store JSON string in either IRAM or EEPROM.
 	 * During the read, remove any whitespace, /r, /n characters to ensure the 
@@ -92,27 +108,31 @@ public:
 	 */ 
 	void parse(char c);
 
-	// User can also add key-value pairs to the JSON string after the current key-value pointer position 
+	/** 
+	 * Gets the value from the JSON string provided a key.
+	 * Only the first value in the complete JSON string with the matching key will be found and placed in the value property. 
+	 *
+	 * @param char* key             - The key to find the value of (without quotation marks).
+	 * @param unsigned int keySize  - The length of the key to find. 
+	 * @return void
+	 */
+	void getvalue(char* key, unsigned int keySize);
+
+	
+	// User can also add key-value pairs to the JSON string after the current key-value pointer position
 	// (two variations, one function accepts a char* and the other accepts a key char*, value char*).
-	// This allows for users to provide an already formatted JSON key-value pair or just the key, value. 
+	// This allows for users to provide an already formatted JSON key-value pair or just the key, value.
 	// (Unsure at this point as to how to handle array values/embedded key-value pairs).
 
 	// user will loop through the  (will return a 1 if there is still JSON to parse, else 0. 'tinyjson.next()' function until the end of the JSON string has been reached.
 
-	// user can get current Key-Value Pair (depending on where next is) by looking at the 'tinyjsonpp.key' and 'tinyjsonpp.value' properties. 
+	// user can get current Key-Value Pair (depending on where next is) by looking at the 'tinyjsonpp.key' and 'tinyjsonpp.value' properties.
 	// They will also be able to look at the 'tinyjsonpp.valueType', which will
 	// indicate what type the characters represent. (int => 'i', string => 's', char => 'c', bool => 'b', array => 'a').
 
 	// value will always return a char *. (A Pointer to the start of value in the stored JSON string).
 
 	// There is also a function that will allow looping through the string one character at a time for use when transmitting UART
-
-	/** 
-	 * Empties the current JSON string.
-	 *
-	 * @return void
-	 */
-	void empty();
 };
 
 #endif /* LIBRARY_H_ */
