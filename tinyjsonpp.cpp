@@ -103,3 +103,7 @@ void tinyjsonpp::getvalue(char* key, unsigned int keySize) {
 		this->valueType = 'n';
 	}
 }
+
+void tinyjsonpp::insert(char* key, unsigned int keySize, char* value, unsigned int valueSize, char* parent, unsigned int parentLength) {
+	// If the key is already in the JSON string then just change the value, else add the k-v pair to the JSON string.
+}
