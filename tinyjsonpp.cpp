@@ -180,7 +180,21 @@ void tinyjsonpp::insert(char* key, char* value, char* parent) {
 
 	// TODO: WRITE;
 	// If the key is already in the JSON string then just change the value, else add the k-v pair to the JSON string.
-	// then add the key value pair to the value string. (will need to memmove first (maxsize-jsonsize = free space at the end of the JSON string.).
+	getValue(key, this->value.start, this->value.size);
+
+	// The key does not already exists in the object.
+	if (this->key.start = NULL) {
+		// Measure length of k-v pair. (Add some extra spaces for "").
+		// Move original information to make space for new k-v pair.
+		// Add the k-v pair to the start of the JSON object.
+	} else {
+		// The key already exists in the object.
+		// See what the length of the new value is.
+		// Move original information to make space for new value.
+		// Insert new value.
+	}
+
+	// then add the key value pair to the value string. (will need to memmove first (maxsize - jsonsize = free space at the end of the JSON string.).
 
 	// If the parent does not exist then these should be created.
 }
