@@ -1,9 +1,9 @@
 /*
- * tinyjsonpp.cpp
- *
- * Created: 11-Sept-17 12:25:10
- * Author : hydroflax
- */ 
+* tinyjsonpp.cpp
+*
+* Created: 11-Sept-17 12:25:10
+* Author : hydroflax
+*/
 
 #include <avr/io.h>
 #include <string.h>
@@ -97,23 +97,24 @@ void tinyjsonpp::getValue(char* key, char* searchStart, unsigned int searchSize)
 			}
 
 			if(this->json[location] == ',' || this->json[location] == '}') {
-			if(!array) {
-				this->value.size = &this->json[location - 1] - this->value.start;
+				if(!array) {
+					this->value.size = &this->json[location - 1] - this->value.start;
+					valueFound = true;
+				}
+			}
+
+			if(this->json[location] == ']') {
+				this->value.size = &this->json[location] - this->value.start;
 				valueFound = true;
 			}
-		}
 
-		if(this->json[location] == ']') {
-			this->value.size = &this->json[location] - this->value.start;
-			valueFound = true;
+			++location;
 		}
-
-		++location;
-	}
 	} else {
-	clearKeyValue();
+		clearKeyValue();
+	}
 }
-}
+
 
 Value tinyjsonpp::getValue(char* key) {
 	getValue(key, this->json, this->jsonSize);
@@ -156,10 +157,10 @@ void tinyjsonpp::insert(char* key, char* value) {
 
 void tinyjsonpp::insert(char* key, char* value, char* parent) {
 	clearKeyValue();
-	// Uses getValue() for the insert place. e.g. if the parent was "3/user"and the k-v to insert was "hello": "world" then can getvalue of "user" in parent "3". 
+	// Uses getValue() for the insert place. e.g. if the parent was "3/user"and the k-v to insert was "hello": "world" then can getvalue of "user" in parent "3".
 
 	// Separate the parent string into the parent and the key to get the value of.
-	unsigned int forwardSlash = 0;	
+	unsigned int forwardSlash = 0;
 	location = 0;
 
 	while(location < strlen(parent)) {
