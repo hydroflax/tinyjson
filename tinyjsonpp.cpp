@@ -54,9 +54,10 @@ void tinyjsonpp::parse(char c) {
 	++this->jsonSize;
 }
 
-Value tinyjsonpp::getvalue(char* key) {
-	this->key.start = NULL;
-	this->key.start = static_cast<char*>(memmem(this->json, this->maxSize, key, strlen(key)));
+void tinyjsonpp::getValue(char* key, char* searchStart, unsigned int searchSize)
+{
+	clearKeyValue();
+	this->key.start = static_cast<char*>(memmem(searchStart, searchSize, key, strlen(key)));
 
 	// The key was found in the JSON. (If not, key will be set to NULL).
 	if(this->key.start) {
@@ -82,77 +83,79 @@ Value tinyjsonpp::getvalue(char* key) {
 				if (this->json[location + 2] >= '0' && this->json[location + 2] <= '9') {
 					// A int has been found (based off first letter).
 					this->value.type = 'i';
-				} else if(this->json[location + 1] == '[') {
+					} else if(this->json[location + 1] == '[') {
 					// An array has been found.
 					array = true;
 					this->value.type = 'a';
-				} else if(this->json[location + 1] == '{') {
+					} else if(this->json[location + 1] == '{') {
 					// An embeddedJSON object has been found.
 					//embeddedJSON = true;
 					this->value.type = 'e';
-				} else {
+					} else {
 					this->value.type = 's';
 				}
 			}
 
 			if(this->json[location] == ',' || this->json[location] == '}') {
-				if(!array) {
-					this->value.size = &this->json[location - 1] - this->value.start;
-					valueFound = true;
-				}
-			}
-
-			if(this->json[location] == ']') {
-				this->value.size = &this->json[location] - this->value.start;
+			if(!array) {
+				this->value.size = &this->json[location - 1] - this->value.start;
 				valueFound = true;
 			}
-
-			++location;
 		}
 
-	} else {
-		this->key.start = NULL;
-		this->key.size = 0;
-		this->value.start = NULL;
-		this->value.size = 0;
-		this->value.type = 'n';
-	}
+		if(this->json[location] == ']') {
+			this->value.size = &this->json[location] - this->value.start;
+			valueFound = true;
+		}
 
+		++location;
+	}
+	} else {
+	clearKeyValue();
+}
+}
+
+Value tinyjsonpp::getValue(char* key) {
+	getValue(key, this->json, this->jsonSize);
 	return this->value;
 }
 
-Value tinyjsonpp::getvalue(char* key, char* parent) {
-	// See how many / in parent to see how deep we need to go.
-	// Find the parent start. i.e. '"<parent>" : {'
-	// Count how many open '{' before the first '}' If there are multiple then find then minus the count until at zero again.
-	// This is the embedded json value.
-	// do the same until the parent string has completed and a value has been found.
+Value tinyjsonpp::getValue(char* key, char* parent) {
+	clearKeyValue();
 
-	// Currently no error checking!
-	//bool parentComplete = false;
-		
-	// Start searching the whole JSON string.
-	this->key.start = this->json;
-	this->key.size = this->jsonSize;
+	// Set initial memmem string search parameters.
+	this->value.start = this->json;
+	this->value.size = this->jsonSize;
 
-	// Separate the parent string.
-	//char* search = strsep(&parent, '/');
+	char *token = strtok(parent, "/");
+	while (token != NULL) {
+		this->key.start = static_cast<char*>(memmem(this->value.start, this->value.size, token, strlen(token)));
 
-	// The start of the parent.
-	//this->key.start = static_cast<char*>(memmem(this->json, this->maxSize, search, strlen(search)));
+		// The key was found in the JSON.
+		if (this->key.start) {
+			// Set the correct values.
+			this->location = this->key.start - this->json;
+			this->value.start = &this->json[location + 2];
 
-	// The parent was found in the JSON. (If not, key will be set to NULL).
-	if(this->key.start) {
-		
+			// Faking the value size. Good enough for simple cases.
+			this->value.size = this->jsonSize - (location + 2);
+		}
+		token = strtok(NULL, "/");
 	}
+
+	// Standard getValue() can be called passing the key to be found along with the search range.
+	getValue(key, this->value.start, this->value.size);
+
 	return this->value;
 }
 
 void tinyjsonpp::insert(char* key, char* value) {
-	 // Insert the key-value pair into the root JSON object.
+	clearKeyValue();
+	// Insert the key-value pair into the root JSON object.
 }
 
 void tinyjsonpp::insert(char* key, char* value, char* parent) {
+	clearKeyValue();
 	// Uses getValue() for the insert place. e.g. if the parent was "3/user"and the k-v to insert was "hello": "world" then can getvalue of "user" in parent "3". 
 
 	// Separate the parent string into the parent and the key to get the value of.
@@ -172,11 +175,23 @@ void tinyjsonpp::insert(char* key, char* value, char* parent) {
 	parent[forwardSlash] = 0;
 
 	// The below will store the results in this->value so no need to create a new Value.
-	getvalue(getValueKey, parent);
+	getValue(getValueKey, parent);
 
 	// TODO: WRITE;
 	// If the key is already in the JSON string then just change the value, else add the k-v pair to the JSON string.
 	// then add the key value pair to the value string. (will need to memmove first (maxsize-jsonsize = free space at the end of the JSON string.).
 
 	// If the parent does not exist then these should be created.
+}
+
+void tinyjsonpp::clearKeyValue()
+{
+	this->key.start = NULL;
+	this->key.size = 0;
+	this->key.parent = NULL;
+	this->key.value = NULL;
+	this->value.start = NULL;
+	this->value.size = 0;
+	this->value.type = 'n';
+	this->value.key = NULL;
 }

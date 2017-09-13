@@ -116,6 +116,16 @@ public:
 	 */ 
 	void parse(char c);
 
+	/**
+	 * Helper function used to search for the value within a provided memory search range.
+	 *
+	 * @param char* key                 - The key to find the value of (without quotation marks).
+	 * @param char* searchStart         - The starting place to find the key in.
+	 * @param unsigned int searchSize   - The length of the 'search' string.
+	 * @return void
+	 */
+	void getValue(char* key, char* searchStart, unsigned int searchSize);
+
 	/** 
 	 * Gets the value from the JSON string provided a key.
 	 * Only the first value in the complete JSON string with the matching key will be found and placed in the value 
@@ -124,7 +134,7 @@ public:
 	 * @param char* key                 - The key to find the value of (without quotation marks).
 	 * @return void
 	 */
-	Value getvalue(char* key);
+	Value getValue(char* key);
 
 	/**
 	 * Gets the value from the JSON string provided a key.
@@ -135,8 +145,8 @@ public:
 	 * @param char* parent              - The parent structure to find. This should be in form "<parent>/<parent>".
 	 * @return void
 	 */
-	Value getvalue(char* key, char* parent);
-	
+	Value getValue(char* key, char* parent);
+
 	/**
 	 * Inserts the key value pair into the JSON string in the root JSON object.
 	 *
@@ -154,6 +164,13 @@ public:
 	 */
 	void insert(char* key, char* value, char* parent);
 	
+
+	/** 
+	 * Clears the current key & value properties attached to this object instance.
+	 *
+	 * @return void
+	 */
+	void clearKeyValue();
 	// User can also add key-value pairs to the JSON string after the current key-value pointer position (two variations,
 	// one function accepts a char* and the other accepts a key char*, value char*). This allows for users to provide an
 	// already formatted JSON key-value pair or just the key, value. (Unsure at this point as to how to handle array
