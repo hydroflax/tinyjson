@@ -10,16 +10,14 @@
 #include "tinyjsonpp.h"
 
 tinyjsonpp::tinyjsonpp(bool store, unsigned int maxSize) {
-	char* newchar = static_cast<char*>(malloc(maxSize));
-	this->json = newchar;
+	this->json = static_cast<char*>(calloc(maxSize, sizeof(char)));
 
 	this->jsonSize = maxSize;
 	this->location = 0;
 }
 
 tinyjsonpp::tinyjsonpp(bool store, bool ignoreQuotes, unsigned int maxSize) {
-	char* newchar = static_cast<char*>(malloc(maxSize));
-	this->json = newchar;
+	this->json = static_cast<char*>(calloc(maxSize, sizeof(char)));
 
 	this->jsonSize = maxSize;
 	this->location = 0;
@@ -56,39 +54,56 @@ void tinyjsonpp::parse(char c) {
 	++this->location;
 }
 
-void tinyjsonpp::getvalue(char* key, unsigned int keySize) {
-	this->key = static_cast<char*>(memmem(this->json, jsonSize, key, keySize));
+Value tinyjsonpp::getvalue(char* key, unsigned int keySize) {
+	this->key.start = static_cast<char*>(memmem(this->json, jsonSize, key, keySize));
 
 	// The key was found in the JSON. (If not, key will be set to NULL).
-	if(this->key) {
-		this->keySize = keySize;
+	if(this->key.start) {
+		this->key.size = keySize;
 
 		// Set the current location
-		this->location = this->key - this->json;
+		this->location = this->key.start - this->json;
+
+		// Set the values key pointer (and vice versa).
+		this->value.key = &this->key;
+		this->key.value = &this->value;
 
 		// Get the entire value.
 		// loop through each char in the string until a "," or "}" is found or if an opening "[", then a "]" is found.
 		bool valueFound = false;
 		bool array = false;
+		//bool embeddedJSON = false;
 		while(!valueFound) {
 
 			// Start of Value after ':"' or ':['
 			if(this->json[location] == ':') {
-				this->value = &this->json[location + 2];
-				if(this->json[location + 1] == '[') {
+				this->value.start = &this->json[location + 2];
+
+				if (this->json[location + 2] >= '0' && this->json[location + 2] <= '9') {
+					// A int has been found (based off first letter).
+					this->value.type = 'i';
+				} else if(this->json[location + 1] == '[') {
+					// An array has been found.
 					array = true;
+					this->value.type = 'a';
+				} else if(this->json[location + 1] == '{') {
+					// An embeddedJSON object has been found.
+					//embeddedJSON = true;
+					this->value.type = 'e';
+				} else {
+					this->value.type = 's';
 				}
 			}
 
 			if(this->json[location] == ',' || this->json[location] == '}') {
 				if(!array) {
-					this->valueSize = &this->json[location - 1] - this->value ;
+					this->value.size = &this->json[location - 1] - this->value.start;
 					valueFound = true;
 				}
 			}
 
 			if(this->json[location] == ']') {
-				this->valueSize = &this->json[location] - this->value;
+				this->value.size = &this->json[location] - this->value.start;
 				valueFound = true;
 			}
 
@@ -96,12 +111,14 @@ void tinyjsonpp::getvalue(char* key, unsigned int keySize) {
 		}
 
 	} else {
-		this->key = NULL;
-		this->keySize = 0;
-		this->value = NULL;
-		this->valueSize = 0;
-		this->valueType = 'n';
+		this->key.start = NULL;
+		this->key.size = 0;
+		this->value.start = NULL;
+		this->value.size = 0;
+		this->value.type = 'n';
 	}
+
+	return this->value;
 }
 
 void tinyjsonpp::insert(char* key, unsigned int keySize, char* value, unsigned int valueSize, char* parent, unsigned int parentLength) {

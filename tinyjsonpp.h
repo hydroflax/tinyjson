@@ -11,6 +11,31 @@
 
 #include "stdlib.h"
 
+//------------------------------------------------------------------------------------------------------------------------
+//             Struct Definitions
+//------------------------------------------------------------------------------------------------------------------------
+struct Key;
+struct Value;
+
+typedef struct Key {
+	char* start;       // A pointer to the start of the key (ignoring quotation marks).
+	unsigned int size; // The amount of characters the key has.
+	Key* parent;       // The parent of the key. (if it has one).
+	Value* value;      // A pointer to the start of the value that this key has.
+} Key;
+
+typedef struct Value {
+	char* start;       // A pointer to the start of the value (ignoring quotation marks).
+	unsigned int size; // The amount of characters the value has.
+	char type;         // The value type (int => 'i', string => 's', char => 'c', bool => 'b', array => 'a',
+	                   // embedded JSON obj => 'e', null => 'n').
+	Key* key;          // A pointer to this values key.
+} Value;
+
+//------------------------------------------------------------------------------------------------------------------------
+//             TinyJSONpp
+//------------------------------------------------------------------------------------------------------------------------
+
 class tinyjsonpp {
 public:
 	//--------------------------------------------------------------------------------------------------------------------
@@ -22,16 +47,8 @@ public:
 	char* json;                // The JSON string.
 	unsigned int jsonSize;     // The size of the json string.
 
-	char* key;                 // A pointer to the start of the key (ignoring quotation marks). This is used know where 
-	                           // the user has read up to in the JSON string stored in memory. (next() uses this to the
-	                           // next key-value pair).
-	unsigned int keySize;      // The amount of characters the key has.
-	char* keyParent;           // The parent of the key. (if it has one).
-
-	char* value;               // A pointer to the start of the value (ignoring quotation marks).
-	unsigned int valueSize;    // The amount of characters the value has.
-	char valueType;            // The value type (int => 'i', string => 's', char => 'c', bool => 'b', array => 'a',
-                                   // embedded JSON obj => 'e', null => 'n').
+	Key key;                   // The current key.
+	Value value;               // The current value.
 
 	//--------------------------------------------------------------------------------------------------------------------
 	//         Methods
@@ -108,7 +125,7 @@ public:
 	 * @param unsigned int keySize      - The length of the key to find. 
 	 * @return void
 	 */
-	void getvalue(char* key, unsigned int keySize);
+	Value getvalue(char* key, unsigned int keySize);
 
 	/**
 	 * Gets the value from the JSON string provided a key.
@@ -121,7 +138,7 @@ public:
 	 * @param unsigned int parentLength - The length of the parent string.
 	 * @return void
 	 */
-	void getvalue(char* key, unsigned int keySize, char* parent, unsigned int parentLength);
+	Value getvalue(char* key, unsigned int keySize, char* parent, unsigned int parentLength);
 	
 	/**
 	 * Inserts the key value pair into the JSON string in the root JSON object.
