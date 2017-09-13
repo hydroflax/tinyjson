@@ -42,9 +42,9 @@ public:
 	//         Variables
 	//--------------------------------------------------------------------------------------------------------------------
 
-	unsigned int location;     // The current location of the user. (Used by parse). (Enables user to insert K-V pairs 
-	                           // into the current JSON string).
+	unsigned int location;     // A temporary integer used by functions for looping.
 	char* json;                // The JSON string.
+	unsigned int maxSize;      // The maximum allowable size of the JSON string.
 	unsigned int jsonSize;     // The size of the json string.
 
 	Key key;                   // The current key.
@@ -122,10 +122,9 @@ public:
 	 * property. 
 	 *
 	 * @param char* key                 - The key to find the value of (without quotation marks).
-	 * @param unsigned int keySize      - The length of the key to find. 
 	 * @return void
 	 */
-	Value getvalue(char* key, unsigned int keySize);
+	Value getvalue(char* key);
 
 	/**
 	 * Gets the value from the JSON string provided a key.
@@ -133,35 +132,27 @@ public:
 	 * property.
 	 *
 	 * @param char* key                 - The key to find the value of (without quotation marks).
-	 * @param unsigned int keySize      - The length of the key to find. 
 	 * @param char* parent              - The parent structure to find. This should be in form "<parent>/<parent>".
-	 * @param unsigned int parentLength - The length of the parent string.
 	 * @return void
 	 */
-	Value getvalue(char* key, unsigned int keySize, char* parent, unsigned int parentLength);
+	Value getvalue(char* key, char* parent);
 	
 	/**
 	 * Inserts the key value pair into the JSON string in the root JSON object.
 	 *
 	 * @param char* key                 - The key to insert.
-	 * @param unsigned int keySize      - The length of the key to insert.
 	 * @param char* value               - The value to insert.
-	 * @param unsigned int valueSize    - The length of the value to insert.	 
 	 */
-	void insert(char* key, unsigned int keySize, char* value, unsigned int valueSize);
+	void insert(char* key, char* value);
 	
 	/**
 	 * Inserts the key value pair into the JSON string in the JSON object provided a parent schema.
 	 *
 	 * @param char* key                 - The key to insert.
-	 * @param unsigned int keySize      - The length of the key to insert.
 	 * @param char* value               - The value to insert.
-	 * @param unsigned int valueSize    - The length of the value to insert.
 	 * @param char* parent              - The parent structure to insert in to. This should be in form "<parent>/<parent>".
-	 * @param unsigned int parentLength - The length of the parent string.
 	 */
-	void insert(char* key, unsigned int keySize, char* value, unsigned int valueSize, 
-		    char* parent, unsigned int parentLength);
+	void insert(char* key, char* value, char* parent);
 	
 	// User can also add key-value pairs to the JSON string after the current key-value pointer position (two variations,
 	// one function accepts a char* and the other accepts a key char*, value char*). This allows for users to provide an
