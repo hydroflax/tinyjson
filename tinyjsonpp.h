@@ -11,27 +11,44 @@
 
 #include "stdlib.h"
 
+//------------------------------------------------------------------------------------------------------------------------
+//             Struct Definitions
+//------------------------------------------------------------------------------------------------------------------------
+struct Key;
+struct Value;
+
+typedef struct Key {
+	char* start;       // A pointer to the start of the key (ignoring quotation marks).
+	unsigned int size; // The amount of characters the key has.
+	Key* parent;       // The parent of the key. (if it has one).
+	Value* value;      // A pointer to the start of the value that this key has.
+} Key;
+
+typedef struct Value {
+	char* start;       // A pointer to the start of the value (ignoring quotation marks).
+	unsigned int size; // The amount of characters the value has.
+	char type;         // The value type (int => 'i', string => 's', char => 'c', bool => 'b', array => 'a',
+	                   // embedded JSON obj => 'e', null => 'n').
+	Key* key;          // A pointer to this values key.
+} Value;
+
+//------------------------------------------------------------------------------------------------------------------------
+//             TinyJSONpp
+//------------------------------------------------------------------------------------------------------------------------
+
 class tinyjsonpp {
 public:
 	//--------------------------------------------------------------------------------------------------------------------
 	//         Variables
 	//--------------------------------------------------------------------------------------------------------------------
 
-	unsigned int location;     // The current location of the user. (Used by parse). (Enables user to insert K-V pairs 
-	                           // into the current JSON string).
+	unsigned int location;     // A temporary integer used by functions for looping.
 	char* json;                // The JSON string.
+	unsigned int maxSize;      // The maximum allowable size of the JSON string.
 	unsigned int jsonSize;     // The size of the json string.
 
-	char* key;                 // A pointer to the start of the key (ignoring quotation marks). This is used know where 
-	                           // the user has read up to in the JSON string stored in memory. (next() uses this to the
-	                           // next key-value pair).
-	unsigned int keySize;      // The amount of characters the key has.
-	char* keyParent;           // The parent of the key. (if it has one).
-
-	char* value;               // A pointer to the start of the value (ignoring quotation marks).
-	unsigned int valueSize;    // The amount of characters the value has.
-	char valueType;            // The value type (int => 'i', string => 's', char => 'c', bool => 'b', array => 'a',
-                                   // embedded JSON obj => 'e', null => 'n').
+	Key key;                   // The current key.
+	Value value;               // The current value.
 
 	//--------------------------------------------------------------------------------------------------------------------
 	//         Methods
@@ -99,16 +116,25 @@ public:
 	 */ 
 	void parse(char c);
 
+	/**
+	 * Helper function used to search for the value within a provided memory search range.
+	 *
+	 * @param char* key                 - The key to find the value of (without quotation marks).
+	 * @param char* searchStart         - The starting place to find the key in.
+	 * @param unsigned int searchSize   - The length of the 'search' string.
+	 * @return void
+	 */
+	void getValue(char* key, char* searchStart, unsigned int searchSize);
+
 	/** 
 	 * Gets the value from the JSON string provided a key.
 	 * Only the first value in the complete JSON string with the matching key will be found and placed in the value 
 	 * property. 
 	 *
 	 * @param char* key                 - The key to find the value of (without quotation marks).
-	 * @param unsigned int keySize      - The length of the key to find. 
 	 * @return void
 	 */
-	void getvalue(char* key, unsigned int keySize);
+	Value getValue(char* key);
 
 	/**
 	 * Gets the value from the JSON string provided a key.
@@ -116,36 +142,35 @@ public:
 	 * property.
 	 *
 	 * @param char* key                 - The key to find the value of (without quotation marks).
-	 * @param unsigned int keySize      - The length of the key to find. 
 	 * @param char* parent              - The parent structure to find. This should be in form "<parent>/<parent>".
-	 * @param unsigned int parentLength - The length of the parent string.
 	 * @return void
 	 */
-	void getvalue(char* key, unsigned int keySize, char* parent, unsigned int parentLength);
-	
+	Value getValue(char* key, char* parent);
+
 	/**
 	 * Inserts the key value pair into the JSON string in the root JSON object.
 	 *
 	 * @param char* key                 - The key to insert.
-	 * @param unsigned int keySize      - The length of the key to insert.
 	 * @param char* value               - The value to insert.
-	 * @param unsigned int valueSize    - The length of the value to insert.	 
 	 */
-	void insert(char* key, unsigned int keySize, char* value, unsigned int valueSize);
+	void insert(char* key, char* value);
 	
 	/**
 	 * Inserts the key value pair into the JSON string in the JSON object provided a parent schema.
 	 *
 	 * @param char* key                 - The key to insert.
-	 * @param unsigned int keySize      - The length of the key to insert.
 	 * @param char* value               - The value to insert.
-	 * @param unsigned int valueSize    - The length of the value to insert.
 	 * @param char* parent              - The parent structure to insert in to. This should be in form "<parent>/<parent>".
-	 * @param unsigned int parentLength - The length of the parent string.
 	 */
-	void insert(char* key, unsigned int keySize, char* value, unsigned int valueSize, 
-		    char* parent, unsigned int parentLength);
+	void insert(char* key, char* value, char* parent);
 	
+
+	/** 
+	 * Clears the current key & value properties attached to this object instance.
+	 *
+	 * @return void
+	 */
+	void clearKeyValue();
 	// User can also add key-value pairs to the JSON string after the current key-value pointer position (two variations,
 	// one function accepts a char* and the other accepts a key char*, value char*). This allows for users to provide an
 	// already formatted JSON key-value pair or just the key, value. (Unsure at this point as to how to handle array
