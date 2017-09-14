@@ -74,35 +74,43 @@ void tinyjsonpp::getValue(char* key, char* searchStart, unsigned int searchSize)
 		// loop through each char in the string until a "," or "}" is found or if an opening "[", then a "]" is found.
 		bool valueFound = false;
 		bool array = false;
-		//bool embeddedJSON = false;
+		bool embeddedJSON = false;
 		while(!valueFound) {
 
 			// Start of Value after ':"' or ':['
-			if(this->json[location] == ':') {
+			if(this->json[location] == ':' && !embeddedJSON) {
 				this->value.start = &this->json[location + 2];
+
 				if (this->json[location + 2] >= '0' && this->json[location + 2] <= '9') {
 					// A int has been found (based off first letter).
 					this->value.type = 'i';
-					} else if(this->json[location + 1] == '[') {
+				} else if(this->json[location + 1] == '[') {
 					// An array has been found.
 					array = true;
 					this->value.type = 'a';
-					} else if(this->json[location + 1] == '{') {
+				} else if(this->json[location + 1] == '{') {
 					// An embeddedJSON object has been found.
-					//embeddedJSON = true;
+					embeddedJSON = true;
 					this->value.type = 'e';
-					} else {
+				} else {
 					this->value.type = 's';
 				}
 			}
 
-			if(this->json[location] == ',' || this->json[location] == '}') {
+			if(this->json[location] == ',' || (this->json[location] == '}' && !embeddedJSON)) {
 				if(!array) {
 					this->value.size = &this->json[location - 1] - this->value.start;
 					valueFound = true;
 				}
 			}
 
+			// Embedded JSON
+			if(this->json[location] == '}' && embeddedJSON) {
+				this->value.size = &this->json[location] - this->value.start;
+				valueFound = true;
+			}
+
+			// Array
 			if(this->json[location] == ']') {
 				this->value.size = &this->json[location] - this->value.start;
 				valueFound = true;
@@ -128,7 +136,10 @@ Value tinyjsonpp::getValue(char* key, char* parent) {
 	this->value.start = this->json;
 	this->value.size = this->jsonSize;
 
-	char *token = strtok(parent, "/");
+	char* originalParent = static_cast<char*>(calloc(strlen(parent), sizeof(char)));
+	originalParent = strcpy(originalParent, parent);
+
+	char *token = strtok(originalParent, "/");
 	while (token != NULL) {
 		this->key.start = static_cast<char*>(memmem(this->value.start, this->value.size, token, strlen(token)));
 
@@ -146,6 +157,7 @@ Value tinyjsonpp::getValue(char* key, char* parent) {
 
 	// Standard getValue() can be called passing the key to be found along with the search range.
 	getValue(key, this->value.start, this->value.size);
+	free(originalParent);
 
 	return this->value;
 }
@@ -172,31 +184,38 @@ void tinyjsonpp::insert(char* key, char* value, char* parent) {
 	}
 
 	// Set the forwardSlash to the end of the parent string.
-	char* getValueKey = &parent[forwardSlash + 1];
-	parent[forwardSlash] = 0;
+	char* originalParent = static_cast<char*>(calloc(strlen(parent), sizeof(char)));
+	originalParent = strcpy(originalParent, parent);
+	originalParent[forwardSlash] = 0;
 
-	// The below will store the results in this->value so no need to create a new Value.
-	getValue(getValueKey, parent);
+	// Creating a temporary value as if the key not in the value, this will be set to NULL.
+	Value val = getValue(&originalParent[forwardSlash + 1], originalParent);
 
 	// TODO: WRITE;
 	// If the key is already in the JSON string then just change the value, else add the k-v pair to the JSON string.
 	getValue(key, this->value.start, this->value.size);
 
 	// The key does not already exists in the object.
-	if (this->key.start = NULL) {
-		// Measure length of k-v pair. (Add some extra spaces for "").
-		// Move original information to make space for new k-v pair.
-		// Add the k-v pair to the start of the JSON object.
-	} else {
-		// The key already exists in the object.
-		// See what the length of the new value is.
-		// Move original information to make space for new value.
-		// Insert new value.
+	if (this->key.start == NULL) {
+		// Measure length of key. (with value = "")
+		// Move original information to make space for new key.
+		// Add the key (if there is } after then no need for , after the value "".
+		location = strlen(key) + 3;
+
 	}
+
+	// The key previously existed in the object/it does now..
+	// See what the length of the new value is.
+	// See what length of old value was.
+	// Move original information to make space for new value.
+	// Replace old value with new value.
+	// If a [] or {} no need for "".
 
 	// then add the key value pair to the value string. (will need to memmove first (maxsize - jsonsize = free space at the end of the JSON string.).
 
 	// If the parent does not exist then these should be created.
+
+	free(originalParent);
 }
 
 void tinyjsonpp::clearKeyValue()
