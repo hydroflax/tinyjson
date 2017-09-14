@@ -200,9 +200,21 @@ void tinyjsonpp::insert(char* key, char* value, char* parent) {
 		// Measure length of key. (with value = "")
 		// Move original information to make space for new key.
 		// Add the key (if there is } after then no need for , after the value "".
-		location = strlen(key) + 3;
+		
+		// The space which will be freed up.
+		location = val.start - this->json + strlen(key) + 5;
 
+		memmove(&this->json[location], val.start, (val.start - this->json));
 	}
+
+	location = val.start - this->json;
+	this->json[location] = '"';
+	memcpy(&this->json[location + 1], key, strlen(key));
+	this->json[location + strlen(key) + 1] = '"';
+	this->json[location + strlen(key) + 2] = ':';
+	this->json[location + strlen(key) + 3] = '"';
+	this->json[location + strlen(key) + 4] = '"';
+	this->json[location + strlen(key) + 5] = ',';
 
 	// The key previously existed in the object/it does now..
 	// See what the length of the new value is.
