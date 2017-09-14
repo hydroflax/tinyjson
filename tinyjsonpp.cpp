@@ -197,35 +197,64 @@ void tinyjsonpp::insert(char* key, char* value, char* parent) {
 
 	// The key does not already exists in the object.
 	if (this->key.start == NULL) {
-		// Measure length of key. (with value = "")
-		// Move original information to make space for new key.
-		// Add the key (if there is } after then no need for , after the value "".
-		
-		// The space which will be freed up.
-		location = val.start - this->json + strlen(key) + 5;
+		// The space which will be freed up. (i.e. "<key>":"x").
+		location = val.start - this->json + strlen(key) + 6;
 
+		// If the key is the first to be inserted into the parent then no need for ,
+		if(val.size > 1) {
+			++location;
+		}
+
+		// Move original information to make space for new key.		
 		memmove(&this->json[location], val.start, (val.start - this->json));
+
+		location = val.start - this->json;
+		this->json[location] = '"';
+		memcpy(&this->json[location + 1], key, strlen(key));
+		this->json[location + strlen(key) + 1] = '"';
+		this->json[location + strlen(key) + 2] = ':';
+		this->json[location + strlen(key) + 3] = '"';
+		this->json[location + strlen(key) + 4] = 'x';
+		this->json[location + strlen(key) + 5] = '"';
+		
+		if(val.size > 1) {
+			this->json[location + strlen(key) + 6] = ',';
+		}
+
+		this->key.start = &this->json[location + 1];
+		this->key.size = strlen(key);
+		this->value.start = &this->json[location + strlen(key) + 4];
+		this->value.size = 1;
+
+		// Set the values key pointer (and vice versa).
+		this->value.key = &this->key;
+		this->key.value = &this->value;
 	}
-
-	location = val.start - this->json;
-	this->json[location] = '"';
-	memcpy(&this->json[location + 1], key, strlen(key));
-	this->json[location + strlen(key) + 1] = '"';
-	this->json[location + strlen(key) + 2] = ':';
-	this->json[location + strlen(key) + 3] = '"';
-	this->json[location + strlen(key) + 4] = '"';
-	this->json[location + strlen(key) + 5] = ',';
-
-	// The key previously existed in the object/it does now..
-	// See what the length of the new value is.
-	// See what length of old value was.
+	// The key previously existed in the object/it does now.
+	// See what the length of the new value is. strlen(value)
+	// See what length of old value was. this->value.size
 	// Move original information to make space for new value.
+	location = this->value.start - this->json + strlen(value);
+
+	// +2 for the "" or {} or [].
+	memmove(&this->json[location], &this->json[this->value.start - this->json + this->value.size], (this->value.start - this->json));
+
+	location = this->value.start - this->json;
 	// Replace old value with new value.
+	memcpy(&this->json[location], value, strlen(value));
+
 	// If a [] or {} no need for "".
-
-	// then add the key value pair to the value string. (will need to memmove first (maxsize - jsonsize = free space at the end of the JSON string.).
-
-	// If the parent does not exist then these should be created.
+	if (value[0] == '[') {
+		this->json[location - 1] = '[';
+		this->json[location + strlen(value)] = ']';
+	} else if(value[0] == '{') {
+		this->json[location - 1] = '{';
+		this->json[location + strlen(value)] = '}';
+	} else {
+		this->json[location - 1] = '"';
+		this->json[location + strlen(value)] = '"';
+	}
+	this->jsonSize = strlen(this->json);
 
 	free(originalParent);
 }
