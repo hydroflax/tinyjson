@@ -10,9 +10,9 @@ working on requires this library.**
 
 [*Please see issue tab for more information on potential bugs not listed here.*](https://github.com/hydroflax/tinyjsonpp/issues)
 
-- Unable to access any of the variables within the class that are not pointers.
+- **Creating a JSON string by inserting k-v pairs causes an error when attempting to add a new k-v pair to a previously inserted parent.**
 - The library is only able to deal with single embedded JSON objects/arrays.
-- Only the first of a given key will be found by getvalue(). (This also does not discard
+- Only the first of a given key will be found by getvalue().
 
 ## Considerations ##
 
