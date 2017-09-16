@@ -10,7 +10,6 @@ working on requires this library.**
 
 [*Please see issue tab for more information on potential bugs not listed here.*](https://github.com/hydroflax/tinyjsonpp/issues)
 
-- **Creating a JSON string by inserting k-v pairs causes an error when attempting to add a new k-v pair to a previously inserted parent.**
 - The library is only able to deal with single embedded JSON objects/arrays.
 - Only the first of a given key will be found by getvalue().
 
