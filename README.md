@@ -1,4 +1,4 @@
-# TinyJSONpp #
+# TinyJSONpp [![Build Status](https://travis-ci.org/hydroflax/tinyjsonpp.svg?branch=master)](https://travis-ci.org/hydroflax/tinyjsonpp)
 
 A JSON CPP library for use in memory constraint environments. 
 This library was originally designed for use with the ATtiny841. 
