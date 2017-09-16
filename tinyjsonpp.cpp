@@ -173,13 +173,13 @@ Value tinyjsonpp::getValue(const char* key, const char* parent) const {
 	return v;
 }
 
-void tinyjsonpp::insert(const char* key, const char* value) {
+//void tinyjsonpp::insert(const char* key, const char* value) {
 	// Insert the key-value pair into the root JSON object.
-}
+//}
 
 void tinyjsonpp::insert(const char* key, const char* value, const char* parent) {
 	Value v;
-	Key k;
+	//Key k;
 	// Uses getValue() for the insert place. e.g. if the parent was "3/user"and the k-v to insert was "hello": "world" then can getvalue of "user" in parent "3".
 
 	// Separate the parent string into the parent and the key to get the value of.
@@ -282,4 +282,12 @@ void tinyjsonpp::insert(const char* key, const char* value, const char* parent) 
 	this->jsonSize = strlen(this->json);
 
 	free(originalParent);
+}
+
+char tinyjsonpp::getChar(const unsigned int i) {
+	return this->json[i];
+}
+
+const char* const tinyjsonpp::getJSONString() {
+	return this->json;
 }

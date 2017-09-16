@@ -37,7 +37,7 @@ typedef struct Value {
 //------------------------------------------------------------------------------------------------------------------------
 
 class tinyjsonpp {
-public:
+protected:
 	//--------------------------------------------------------------------------------------------------------------------
 	//         Variables
 	//--------------------------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ public:
 	//--------------------------------------------------------------------------------------------------------------------
 	//         Methods
 	//--------------------------------------------------------------------------------------------------------------------
-
+public:
 	/**
 	 * Constructor
 	 *
@@ -118,7 +118,7 @@ public:
 	 * property. 
 	 *
 	 * @param char* key                 - The key to find the value of (without quotation marks).
-	 * @return void
+	 * @return Value                    - The value of key or NULL if none was found.
 	 */
 	Value getValue(const char* key) const;
 
@@ -129,7 +129,7 @@ public:
 	 *
 	 * @param char* key                 - The key to find the value of (without quotation marks).
 	 * @param char* parent              - The parent structure to find. This should be in form "<parent>/<parent>".
-	 * @return void
+	 * @return Value                    - The value of key or NULL if none was found.
 	 */
 	Value getValue(const char* key, const char* parent) const;
 
@@ -139,7 +139,7 @@ public:
 	 * @param char* key                 - The key to insert.
 	 * @param char* value               - The value to insert.
 	 */
-	void insert(const char* key, const char* value);
+	//void insert(const char* key, const char* value);
 	
 	/**
 	 * Inserts the key value pair into the JSON string in the JSON object provided a parent schema.
@@ -150,32 +150,31 @@ public:
 	 */
 	void insert(const char* key, const char* value, const char* parent);
 
-private:
+	/** 
+	 * Gets a character from the JSON string based on the integer provided.
+	 *
+	 * @param unsigned int i            - The index in the JSON string to return.
+	 * @return char                     - The char at that index position.
+	 */
+	char getChar(const unsigned int i);
+
+	/** 
+	 * Returns a pointer to the JSON string.
+	 *
+	 * @return const char* const        - A pointer to the JSON string.
+	 */
+	const char* const getJSONString();
+
+protected:
 	/**
 	 * Helper function used to search for the value within a provided memory search range.
 	 *
 	 * @param char* key                 - The key to find the value of (without quotation marks).
 	 * @param char* searchStart         - The starting place to find the key in.
 	 * @param unsigned int searchSize   - The length of the 'search' string.
-	 * @return void
+	 * @return Value                    - The value of key or NULL if none was found.
 	 */
 	Value getValue(const char* key, const char* searchStart, const unsigned int searchSize) const;
-
-	// User can also add key-value pairs to the JSON string after the current key-value pointer position (two variations,
-	// one function accepts a char* and the other accepts a key char*, value char*). This allows for users to provide an
-	// already formatted JSON key-value pair or just the key, value. (Unsure at this point as to how to handle array
-	// values/embedded key-value pairs).
-
-	// user will loop through the  (will return a 1 if there is still JSON to parse, else 0. 'tinyjson.next()' function 
-	// until the end of the JSON string has been reached.
-
-	// user can get current Key-Value Pair (depending on where next is) by looking at the 'tinyjsonpp.key' and 
-	// 'tinyjsonpp.value' properties. They will also be able to look at the 'tinyjsonpp.valueType', which will indicate 
-	// what type the characters represent. (int => 'i', string => 's', char => 'c', bool => 'b', array => 'a').
-
-	// value will always return a char *. (A Pointer to the start of value in the stored JSON string).
-	// There is also a function that will allow looping through the string one character at a time for use when 
-	// transmitting UART
 };
 
 #endif /* TINYJSONPP_H_ */
