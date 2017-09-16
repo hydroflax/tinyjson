@@ -6,8 +6,8 @@
  */ 
 
 
-#ifndef LIBRARY_H_
-#define LIBRARY_H_
+#ifndef TINYJSONPP_H_
+#define TINYJSONPP_H_
 
 #include "stdlib.h"
 
@@ -42,13 +42,9 @@ public:
 	//         Variables
 	//--------------------------------------------------------------------------------------------------------------------
 
-	unsigned int location;     // A temporary integer used by functions for looping.
 	char* json;                // The JSON string.
 	unsigned int maxSize;      // The maximum allowable size of the JSON string.
 	unsigned int jsonSize;     // The size of the json string.
-
-	Key key;                   // The current key.
-	Value value;               // The current value.
 
 	//--------------------------------------------------------------------------------------------------------------------
 	//         Methods
@@ -114,17 +110,7 @@ public:
 	 * @param char* c                   - The character currently being passed by the buffer.
 	 * @return void
 	 */ 
-	void parse(char c);
-
-	/**
-	 * Helper function used to search for the value within a provided memory search range.
-	 *
-	 * @param char* key                 - The key to find the value of (without quotation marks).
-	 * @param char* searchStart         - The starting place to find the key in.
-	 * @param unsigned int searchSize   - The length of the 'search' string.
-	 * @return void
-	 */
-	void getValue(char* key, char* searchStart, unsigned int searchSize);
+	void parse(const char c);
 
 	/** 
 	 * Gets the value from the JSON string provided a key.
@@ -134,7 +120,7 @@ public:
 	 * @param char* key                 - The key to find the value of (without quotation marks).
 	 * @return void
 	 */
-	Value getValue(char* key);
+	Value getValue(const char* key) const;
 
 	/**
 	 * Gets the value from the JSON string provided a key.
@@ -145,7 +131,7 @@ public:
 	 * @param char* parent              - The parent structure to find. This should be in form "<parent>/<parent>".
 	 * @return void
 	 */
-	Value getValue(char* key, char* parent);
+	Value getValue(const char* key, const char* parent) const;
 
 	/**
 	 * Inserts the key value pair into the JSON string in the root JSON object.
@@ -153,7 +139,7 @@ public:
 	 * @param char* key                 - The key to insert.
 	 * @param char* value               - The value to insert.
 	 */
-	void insert(char* key, char* value);
+	void insert(const char* key, const char* value);
 	
 	/**
 	 * Inserts the key value pair into the JSON string in the JSON object provided a parent schema.
@@ -162,15 +148,19 @@ public:
 	 * @param char* value               - The value to insert.
 	 * @param char* parent              - The parent structure to insert in to. This should be in form "<parent>/<parent>".
 	 */
-	void insert(char* key, char* value, char* parent);
-	
+	void insert(const char* key, const char* value, const char* parent);
 
-	/** 
-	 * Clears the current key & value properties attached to this object instance.
+private:
+	/**
+	 * Helper function used to search for the value within a provided memory search range.
 	 *
+	 * @param char* key                 - The key to find the value of (without quotation marks).
+	 * @param char* searchStart         - The starting place to find the key in.
+	 * @param unsigned int searchSize   - The length of the 'search' string.
 	 * @return void
 	 */
-	void clearKeyValue();
+	Value getValue(const char* key, const char* searchStart, const unsigned int searchSize) const;
+
 	// User can also add key-value pairs to the JSON string after the current key-value pointer position (two variations,
 	// one function accepts a char* and the other accepts a key char*, value char*). This allows for users to provide an
 	// already formatted JSON key-value pair or just the key, value. (Unsure at this point as to how to handle array
@@ -188,4 +178,4 @@ public:
 	// transmitting UART
 };
 
-#endif /* LIBRARY_H_ */
+#endif /* TINYJSONPP_H_ */
