@@ -77,9 +77,9 @@ Value tinyjsonpp::getValue(const char* key, const char* searchStart, const unsig
 		bool embeddedJSON = false;
 		while(!valueFound) {
 
-			// Start of Value after ':"' or ':['
+			// Start of Value after ':' or ':'
 			if(this->json[location] == ':' && !embeddedJSON) {
-				v.start = &this->json[location + 2];
+				v.start = &this->json[location + 1];
 
 				if (this->json[location + 2] >= '0' && this->json[location + 2] <= '9') {
 					// A int has been found (based off first letter).
@@ -97,27 +97,32 @@ Value tinyjsonpp::getValue(const char* key, const char* searchStart, const unsig
 				}
 			}
 
-			if(this->json[location] == ',' || (this->json[location] == '}' && !embeddedJSON)) {
+			if((this->json[location] == ',' || this->json[location] == '}') && !embeddedJSON) {
 				if(!array) {
-					v.size = &this->json[location - 1] - v.start;
+					v.size = &this->json[location] - v.start;
 					valueFound = true;
 				}
 			}
 
 			// Embedded JSON
 			if(this->json[location] == '}' && embeddedJSON) {
-				v.size = &this->json[location] - v.start;
+				v.size = &this->json[location] - v.start + 1;
 				valueFound = true;
 			}
 
 			// Array
 			if(this->json[location] == ']') {
-				v.size = &this->json[location] - v.start;
+				v.size = &this->json[location] - v.start + 1;
 				valueFound = true;
 			}
 
 			++location;
 		}
+	} else {
+		v.start = NULL;
+		v.size = 0;
+		v.type = 'n';
+		v.key = NULL;
 	}
 	return v;
 }
@@ -151,6 +156,12 @@ Value tinyjsonpp::getValue(const char* key, const char* parent) const {
 
 			// Faking the value size. Good enough for simple cases.
 			v.size = this->jsonSize - (location + 2);
+		} else {
+			v.start = NULL;
+			v.size = 0;
+			v.type = 'n';
+			v.key = NULL;
+			return v;
 		}
 		token = strtok(NULL, "/");
 	}
@@ -198,17 +209,22 @@ void tinyjsonpp::insert(const char* key, const char* value, const char* parent) 
 	// The key does not already exists in the object.
 	if (v.start == NULL) {
 		// The space which will be freed up. (i.e. "<key>":"x").
-		location = val.start - this->json + strlen(key) + 6;
+		// If the current first thing is a {"key":"val"} then {"<key>":"x","key":"val"}
+		// If the current first thing is a {"key":["val1", val2"]} then {"<key>":"x","key":["val1", val2"]}
+
+		// If the value is an embedded/array then the value will have a starter of {
+		// If it is not then it will be ".
+		location = val.start - this->json + strlen(key) + 7;
 
 		// If the key is the first to be inserted into the parent then no need for ,
-		if(val.size > 1) {
+		if(val.size > 2) {
 			++location;
 		}
 
-		// Move original information to make space for new key.		
-		memmove(&this->json[location], val.start, (this->jsonSize - (val.start - this->json)));
+		// Move original information to make space for new key.
+		memmove(&this->json[location], &this->json[val.start - this->json + 1], (this->jsonSize - (val.start - this->json + 1)));
 
-		location = val.start - this->json;
+		location = val.start - this->json + 1;
 		this->json[location] = '"';
 		memcpy(&this->json[location + 1], key, strlen(key));
 		this->json[location + strlen(key) + 1] = '"';
@@ -217,30 +233,31 @@ void tinyjsonpp::insert(const char* key, const char* value, const char* parent) 
 		this->json[location + strlen(key) + 4] = 'x';
 		this->json[location + strlen(key) + 5] = '"';
 		
-		if(val.size > 1) {
+		if(val.size > 2) {
 			this->json[location + strlen(key) + 6] = ',';
 		}
 
-		k.start = &this->json[location + 1];
-		k.size = strlen(key);
-		k.start = &this->json[location + strlen(key) + 4];
-		k.size = 1;
+		//k.start = &this->json[location + 1];
+		//k.size = strlen(key);
+		v.start = &this->json[location + strlen(key) + 3];
+		v.size = 3;
+		v.type = 's';
 
 		// Set the values key pointer (and vice versa).
-		v.key = &k;
-		k.value = &v;
+		//v.key = &k;
+		//k.value = &v;
 	}
 	// The key previously existed in the object/it does now.
 	// See what the length of the new value is. strlen(value)
 	// See what length of old value was. this->value.size
 	// Move original information to make space for new value.
-	location = v.start - this->json + strlen(value);
+	location = v.start - this->json;
 
 	// Increase jsonSize. (Technically not correct but close enough).
-	this->jsonSize = this->jsonSize + 6 + strlen(key);
-
+	this->jsonSize = this->jsonSize + strlen(key) + 6;
+	 
 	// +2 for the "" or {} or [].
-	memmove(&this->json[location], &this->json[v.start - this->json + v.size], (this->jsonSize - (v.start - this->json)));
+	memmove(&this->json[location + strlen(value) + 2], &this->json[v.start - this->json + v.size], (this->jsonSize - (v.start - this->json)));
 
 	location = v.start - this->json;
 	// Replace old value with new value.
@@ -248,14 +265,14 @@ void tinyjsonpp::insert(const char* key, const char* value, const char* parent) 
 
 	// If a [] or {} no need for "".
 	if (value[0] == '[') {
-		this->json[location - 1] = '[';
+		//this->json[location - 1] = '[';
 		this->json[location + strlen(value)] = ']';
 	} else if(value[0] == '{') {
 		// If an embedded JSON object, do nothing.
 		//this->json[location - 1] = '{';
-		//this->json[location + strlen(value)] = '}';
+		this->json[location + strlen(value)] = '}';
 	} else {
-		this->json[location - 1] = '"';
+		//this->json[location - 1] = '"';
 		this->json[location + strlen(value)] = '"';
 	}
 	this->jsonSize = strlen(this->json);
