@@ -256,25 +256,29 @@ void tinyjsonpp::insert(const char* key, const char* value, const char* parent) 
 	// Increase jsonSize. (Technically not correct but close enough).
 	this->jsonSize = this->jsonSize + strlen(key) + 6;
 	 
-	// +2 for the "" or {} or [].
-	memmove(&this->json[location + strlen(value) + 2], &this->json[v.start - this->json + v.size], (this->jsonSize - (v.start - this->json)));
+	if(value[0] == '{' || value[0] == '[') {
+		// If we have a "{ value }" OR a "[ value1, value2] then insert into key.
+		memmove(&this->json[location + strlen(value)], &this->json[v.start - this->json + v.size], (this->jsonSize - (v.start - this->json)));
 
-	location = v.start - this->json;
-	// Replace old value with new value.
-	memcpy(&this->json[location], value, strlen(value));
+		//if (value[0] == '[') {
+			//this->json[location + strlen(value)] = ']';
+		//} else if(value[0] == '{') {
+			//// If an embedded JSON object, do nothing.
+			//this->json[location + strlen(value)] = '}';
+		//}
 
-	// If a [] or {} no need for "".
-	if (value[0] == '[') {
-		//this->json[location - 1] = '[';
-		this->json[location + strlen(value)] = ']';
-	} else if(value[0] == '{') {
-		// If an embedded JSON object, do nothing.
-		//this->json[location - 1] = '{';
-		this->json[location + strlen(value)] = '}';
+		// Replace old value with new value.
+		memcpy(&this->json[location], value, strlen(value));
 	} else {
-		//this->json[location - 1] = '"';
-		this->json[location + strlen(value)] = '"';
+		// We have a value string and this should be surrounded by the "".
+		memmove(&this->json[location + strlen(value) + 2], &this->json[v.start - this->json + v.size], (this->jsonSize - (v.start - this->json + 2)));
+		this->json[location] = '"';
+		this->json[location + strlen(value) + 1] = '"';
+
+		// Replace old value with new value.
+		memcpy(&this->json[location + 1], value, strlen(value));
 	}
+	
 	this->jsonSize = strlen(this->json);
 
 	free(originalParent);
