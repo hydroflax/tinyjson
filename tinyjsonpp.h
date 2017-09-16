@@ -165,6 +165,14 @@ public:
 	 */
 	const char* const getJSONString();
 
+	/** 
+	 * Converts a Value in the JSON String to a int. Will return zero if the value is not an int.
+	 *
+	 * @param Value v                   - The value to convert to an int.
+	 * @return unsigned int             - The value as an integer.
+	 */
+	unsigned int convertValueToInt(const Value v) const;
+
 protected:
 	/**
 	 * Helper function used to search for the value within a provided memory search range.

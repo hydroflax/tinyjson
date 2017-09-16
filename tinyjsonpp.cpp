@@ -291,3 +291,18 @@ char tinyjsonpp::getChar(const unsigned int i) {
 const char* const tinyjsonpp::getJSONString() {
 	return this->json;
 }
+
+unsigned int tinyjsonpp::convertValueToInt(const Value v) const {
+	if(v.type != 'i') {
+		return 0;
+	} else {
+		// Extra space for Terminating character \0.
+		char* value = static_cast<char*>(calloc(v.size - 1, sizeof(char)));
+		memcpy(value, &this->json[v.start - this->json + 1], v.size - 2);
+		value[v.size - 1] = 0;
+		// We now have the value as a string.
+		unsigned int val = atoi(value);
+		free(value);
+		return val;
+	}
+}
