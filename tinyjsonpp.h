@@ -110,7 +110,7 @@ public:
 	 * @param char* c                   - The character currently being passed by the buffer.
 	 * @return void
 	 */ 
-	void parse(const char c);
+	void addCharToJSONString(const char c);
 
 	/** 
 	 * Gets the value from the JSON string provided a key.

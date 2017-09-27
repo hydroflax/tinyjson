@@ -44,7 +44,7 @@ void tinyjsonpp::reset() {
 	this->json[1] = '}';
 }
 
-void tinyjsonpp::parse(const char c) {
+void tinyjsonpp::addCharToJSONString(const char c) {
 	// Ignore Newline, Space, Return Carriage Characters.
 	if (c <= 0x20) {
 		return;
