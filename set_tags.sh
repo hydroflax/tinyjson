@@ -1,3 +1,6 @@
+MAJOR=0
+MINOR=1
+
 BRANCH="master"
 
 # Are we on the right branch?
@@ -14,11 +17,11 @@ if [ "$TRAVIS_BRANCH" = "$BRANCH" ]; then
       git config --global user.name "Daniel Jimenez"
 
       # Add tag and push to master.
-      git tag -a v${MAJOR}.${MINOR}.${TRAVIS_BUILD_NUMBER} -m "Travis build $TRAVIS_BUILD_NUMBER pushed a tag."
+      git tag -a v$MAJOR.$MINOR.${TRAVIS_BUILD_NUMBER} -m "Travis build $TRAVIS_BUILD_NUMBER pushed a tag."
       git push origin --tags
       git fetch origin
 
       echo -e "Done magic with tags.\n"
-  fi
+    fi
   fi
 fi

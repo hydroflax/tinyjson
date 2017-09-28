@@ -19,5 +19,5 @@ deploy:
     - tinyjsonpp.h
   skip_cleanup: true
   on:
+    branch: master
     repo: hydroflax/tinyjsonpp
-    tags: true
