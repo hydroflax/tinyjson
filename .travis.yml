@@ -6,9 +6,6 @@ addons:
     - binutils-avr
     - avr-libc
 script: make
-branches:
-  only:
-  - master
 deploy:
   provider: releases
   api_key:
