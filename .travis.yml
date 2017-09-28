@@ -1,0 +1,8 @@
+---
+language: c
+addons:
+  apt:
+    sources:
+      - gcc-avr
+      - binutils-avr
+      - avr-libc
