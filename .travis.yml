@@ -2,7 +2,7 @@
 language: c
 addons:
   apt:
-    sources:
+    packages:
       - gcc-avr
       - binutils-avr
       - avr-libc
