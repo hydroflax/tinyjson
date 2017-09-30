@@ -36,5 +36,5 @@ ata5272, ata6616c, attiny13, attiny13a, attiny2313, attiny2313a, attiny24, attin
 - Create unit tests and integrate with CI (Build the library for other devices, zip up the library for each device family).
 - Create usage documentation.
 - Convert the current library in C code as most embedded programming is done using C.
-- Make an extended (inherited) smallJSONpp class that extends the base functionality of the library for users who have a less constrained memory environment.
+- Make an extended (inherited) smallJSONpp class that extends the base functionality of the library for users who have a less constrained memory environment. There is potential to implement the smallJSONpp library using something similar to a tree data-structure (with linked list like linkage). This would make traversing the JSON string faster but at the extra cost of memory per JSON k-v pair.
 - Update README to contain an accurate memory footprint value.
