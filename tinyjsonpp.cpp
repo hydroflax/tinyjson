@@ -306,3 +306,7 @@ unsigned int tinyjsonpp::convertValueToInt(const Value v) const {
         return val;
     }
 }
+
+unsigned int tinyjsonpp::getJSONSize() const {
+	return this->jsonSize;
+}

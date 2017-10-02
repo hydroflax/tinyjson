@@ -173,6 +173,13 @@ public:
 	 */
 	unsigned int convertValueToInt(const Value v) const;
 
+	/**
+	 * Returns the current size of the JSON string.
+	 *
+	 * @return unsigned int             - The size of the JSON string.
+	 */ 
+	unsigned int getJSONSize() const;
+
 protected:
 	/**
 	 * Helper function used to search for the value within a provided memory search range.
