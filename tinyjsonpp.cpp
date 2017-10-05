@@ -38,7 +38,7 @@ void tinyjsonpp::empty() {
 }
 
 void tinyjsonpp::reset() {
-    this->jsonSize = 0;
+    this->jsonSize = 2;
     memset(this->json, 0, this->maxSize);
     this->json[0] = '{';
     this->json[1] = '}';
@@ -141,7 +141,7 @@ Value tinyjsonpp::getValue(const char* key, const char* parent) const {
     v.start = this->json;
     v.size = this->jsonSize;
 
-    char* originalParent = static_cast<char*>(calloc(strlen(parent), sizeof(char)));
+    char* originalParent = static_cast<char*>(calloc(strlen(parent + 1), sizeof(char)));
     originalParent = strcpy(originalParent, parent);
 
     char *token = strtok(originalParent, "/");
@@ -179,32 +179,53 @@ Value tinyjsonpp::getValue(const char* key, const char* parent) const {
 
 void tinyjsonpp::insert(const char* key, const char* value, const char* parent) {
     Value v;
+	v.start = NULL;
+	v.size = 0;
+	Value val;
+	unsigned int location = 0;
     //Key k;
     // Uses getValue() for the insert place. e.g. if the parent was "3/user"and the k-v to insert was "hello": "world" then can getvalue of "user" in parent "3".
+	
+	// No parent has been specified, i.e. add to the root domain.
+	if (parent != '\0') {
+		// Separate the parent string into the parent and the key to get the value of.
+		unsigned int forwardSlash = 0;
 
-    // Separate the parent string into the parent and the key to get the value of.
-    unsigned int forwardSlash = 0;
-    unsigned int location = 0;
+		while(location < strlen(parent)) {
+			// Store the location of the last known '/'
+			if(parent[location] == '/') {
+				forwardSlash = location;
+			}
+			++location;
+		}
 
-    while(location < strlen(parent)) {
-        // Store the location of the last known '/'
-        if(parent[location] == '/') {
-            forwardSlash = location;
-        }
-        ++location;
-    }
+		// Set the forwardSlash to the end of the parent string.
+		char* originalParent = static_cast<char*>(calloc(strlen(parent + 1), sizeof(char)));
+		originalParent = strcpy(originalParent, parent);
 
-    // Set the forwardSlash to the end of the parent string.
-    char* originalParent = static_cast<char*>(calloc(strlen(parent), sizeof(char)));
-    originalParent = strcpy(originalParent, parent);
-    originalParent[forwardSlash] = 0;
+		// The root JSON object is to be inserted into/an object in the root object.
+		if(forwardSlash == 0) {
+			val = getValue(originalParent);
+		} else {
+			originalParent[forwardSlash] = 0;
+			// Creating a temporary value as if the key not in the value, this will be set to NULL.
+			val = getValue(&originalParent[forwardSlash + 1], originalParent);
+		}
 
-    // Creating a temporary value as if the key not in the value, this will be set to NULL.
-    Value val = getValue(&originalParent[forwardSlash + 1], originalParent);
+		free(originalParent);
 
-    // TODO: WRITE;
-    // If the key is already in the JSON string then just change the value, else add the k-v pair to the JSON string.
-    v = getValue(key, val.start, val.size);
+		// If no value was found in the current string. return.
+		if (val.size == 0) {
+			return;
+		}
+
+		// If the key is already in the JSON string then just change the value, else add the k-v pair to the JSON string.
+		v = getValue(key, val.start, val.size);
+	} else {
+		// No parent has been specified, insert the value in the root JSON object.
+		val.start = &this->json[location];
+		val.size = this->jsonSize;
+	}
 
     // The key does not already exists in the object.
     if (v.start == NULL) {
@@ -280,8 +301,6 @@ void tinyjsonpp::insert(const char* key, const char* value, const char* parent) 
     }
 
     this->jsonSize = strlen(this->json);
-
-    free(originalParent);
 }
 
 char tinyjsonpp::getChar(const unsigned int i) {
