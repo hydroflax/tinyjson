@@ -292,3 +292,5 @@ __pycache__/
 *.lst
 *.o
 cmake-build-debug
+
+.vscode
